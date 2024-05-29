@@ -1,24 +1,53 @@
-library("ggplot2")
-library("dplyr") #for data manipulation
-library("fastDummies")
-library("cluster")
-library("factoextra")
-library("plotly")
-library("pheatmap")
-library("igraph")
-library("mclust")
-library("dbscan")
-
 main_data <- read.csv("adult.csv")
+   
+     main_data[main_data==" ?"]<-NA
+     main_data<-main_data[complete.cases(main_data), ]
+    main_data <- filter(main_data, native.country == ' United-States')
+   main_data <- filter(main_data, sex == ' Male')
+  main_data <- main_data[c(2,5,6,7,9,15)]
+ main_data <- main_data[1:3000,]
+  main_data <- filter(main_data, marital.status != ' Widowed')
+  main_data <- filter(main_data, marital.status != ' Separated')
+  main_data <- filter(main_data, marital.status != ' Married-spouse-absent')
+  main_data <- filter(main_data, marital.status != ' Married-AF-spouse')
+ main_data <- filter(main_data, education.num > 8)
 
- main_data[main_data==" ?"]<-NA
- main_data<-main_data[complete.cases(main_data), ]
+main_data <- filter(main_data, education.num == 9 | education.num == 10 | education.num == 13)
+
+ head(main_data)
+          workclass education.num      marital.status         occupation   race income
+         State-gov            13       Never-married       Adm-clerical  White  <=50K
+  Self-emp-not-inc            13  Married-civ-spouse    Exec-managerial  White  <=50K
+           Private             9            Divorced  Handlers-cleaners  White  <=50K
+  Self-emp-not-inc             9  Married-civ-spouse    Exec-managerial  White   >50K
+           Private            13  Married-civ-spouse    Exec-managerial  White   >50K
+           Private            10  Married-civ-spouse    Exec-managerial  Black   >50K
 
 
-main_data <- filter(main_data, native.country == ' United-States')
-main_data <- filter(main_data, sex == ' Male')
+ main_data <- filter(main_data, occupation != " Armed-Forces" )
+ main_data <- filter(main_data, occupation != " Protective-serv" )
+ main_data <- filter(main_data, occupation != " Tech-support" )
 
-main_data <- main_data[,c(2,5,6,7,13,15)]
+ main_data <- filter(main_data, race==" White")
 
-# columns to use
-#   workclass         education.num   marital.status      occupation        hours.per.week     income 
+main_data <- select(main_data, -race)
+
+ kmdata <- main_data[,c(2)]
+     kmcategorical<- main_data[,c(3,4,5)]
+ one_hot_encoded<-dummy_cols(kmcategorical,remove_first_dummy = TRUE)
+ 	one_hot_encoded <- one_hot_encoded[,4:8]
+ dim(one_hot_encoded)
+
+ one_hot_encoded<-dummy_cols(kmcategorical,remove_first_dummy = TRUE)
+
+
+one_hot_encoded <- one_hot_encoded[,4:15]
+
+  data<-cbind(kmdata,one_hot_encoded)
+
+data <- scale(data)
+
+fit_kmeans <- kmeans(data,2,iter=300,nstart=2)
+  clusters<-fit_kmeans$cluster
+       centers<-fit_kmeans$centers
+       fviz_cluster(fit_kmeans, data, ellipse.type = "norm")
