@@ -1,3 +1,14 @@
+library("ggplot2")
+library("dplyr") #for data manipulation
+library("fastDummies")
+library("cluster")
+library("factoextra")
+library("plotly")
+library("pheatmap")
+library("igraph")
+library("mclust")
+library("dbscan")
+
 main_data <- read.csv("adult.csv")
    
      main_data[main_data==" ?"]<-NA
